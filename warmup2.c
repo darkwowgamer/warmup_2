@@ -163,7 +163,6 @@ void *TokenThread(void *arg) {
         }
         if (!My402ListEmpty(Q1)) {
             Packet *packet = My402ListFirst(Q1)->obj;
-            //to be continued
             if (packet->P <= curTokenCount) {
                 curTokenCount -= packet->P;
                 MovePacket(1);
@@ -182,7 +181,6 @@ void *TokenThread(void *arg) {
 
 void *ServerThread(void *arg) {
     while (!stopPacket || !My402ListEmpty(Q1) || !My402ListEmpty(Q2)) {
-        //pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         pthread_mutex_lock(&m);
         while(My402ListEmpty(Q2)) {
             pthread_cond_wait(&cv, &m);
@@ -193,7 +191,8 @@ void *ServerThread(void *arg) {
         double serviceStartTime = PrintReturnCurTime();
         printf("p%d begins service at S, requesting %gms of service\n", packet->packetNum, packet->mu * 1000.0);
         //该packet要求睡的时间加上从Q2出来后待的时间
-        double sleepTime = 1000000.0 / packet->mu - 1000.0;
+        double sleepTime = 1000000.0 / packet->mu;
+        //sleep是个一个cancellation point, 如果在这里被cancel则相当于该packet的service没有完成
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         usleep(sleepTime);
         pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
@@ -206,7 +205,6 @@ void *ServerThread(void *arg) {
         totalSysTime += serviceEndTime - packet->Q1ArrivalTime;
         totalTimeSqr += pow((serviceEndTime - packet->Q1ArrivalTime) / 1000.0, 2);
         free(packet);
-        //pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
         pthread_testcancel();
     }
     printf("im server, im done\n");
