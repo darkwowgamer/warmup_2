@@ -174,8 +174,7 @@ void *TokenThread(void *arg) {
         }
     }
     //printf("im token, im done\n");
-    printf("%d\n%d\n", My402ListEmpty(Q1), My402ListEmpty(Q2));
-
+    //printf("%d\n%d\n", My402ListEmpty(Q1), My402ListEmpty(Q2));
     return 0;
 }
 
@@ -189,9 +188,10 @@ void *ServerThread(void *arg) {
         MovePacket(2);
         pthread_mutex_unlock(&m);
         double serviceStartTime = PrintReturnCurTime();
-        printf("p%d begins service at S, requesting %gms of service\n", packet->packetNum, packet->mu * 1000.0);
+        printf("p%d begins service at S, requesting %gms of service\n", packet->packetNum, 1000.0 / packet->mu);
         //该packet要求睡的时间加上从Q2出来后待的时间
-        double sleepTime = 1000000.0 / packet->mu;w
+        double sleepTime = 1000000.0 / packet->mu;
+        printf("sleep time: %.3f\n", sleepTime);
         //sleep是个一个cancellation point, 如果在这里被cancel则相当于该packet的service没有完成
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         usleep(sleepTime);
@@ -229,7 +229,7 @@ void CreateThreads() {
     //???感觉用SIG_SETMASK也可以
     pthread_sigmask(SIG_BLOCK, &set, 0);
     
-    //pthread_create(&handlerThread, NULL, HandlerThread, NULL);
+    pthread_create(&handlerThread, NULL, HandlerThread, NULL);
     pthread_create(&packetThread, NULL, PacketThread, NULL);
     pthread_create(&tokenThread, NULL, TokenThread, NULL);
     pthread_create(&serverThread, NULL, ServerThread, NULL);
