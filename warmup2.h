@@ -58,7 +58,7 @@ pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
 sigset_t set;
 
-double initTime;
+double initTimeVal;
 My402List *Q1 = NULL;
 My402List *Q2 = NULL;
 

@@ -19,9 +19,9 @@
 #include "warmup2.h"
 
 double PrintReturnCurTime() {
-    struct timeval curTime;
-    gettimeofday(&curTime, 0);
-    double curTime = curTime.tv_sec * 1000.0 + curTime.tv_usec / 1000.0 - initTime;
+    struct timeval timeVal;
+    gettimeofday(&timeVal, 0);
+    double curTime = timeVal.tv_sec * 1000.0 + timeVal.tv_usec / 1000.0 - initTimeVal;
     printf("%012.3fms: ", curTime);
     return curTime;
 }
@@ -135,7 +135,7 @@ void *PacketThread(void *arg) {
     }
     packetCount--;
     stopPacket = 1;
-    printf("im packet, im done\n");
+    //printf("im packet, im done\n");
     return 0;
 }
 
@@ -173,7 +173,7 @@ void *TokenThread(void *arg) {
             pthread_cond_signal(&cv);
         }
     }
-    printf("im token, im done\n");
+    //printf("im token, im done\n");
     printf("%d\n%d\n", My402ListEmpty(Q1), My402ListEmpty(Q2));
 
     return 0;
@@ -191,7 +191,7 @@ void *ServerThread(void *arg) {
         double serviceStartTime = PrintReturnCurTime();
         printf("p%d begins service at S, requesting %gms of service\n", packet->packetNum, packet->mu * 1000.0);
         //该packet要求睡的时间加上从Q2出来后待的时间
-        double sleepTime = 1000000.0 / packet->mu;
+        double sleepTime = 1000000.0 / packet->mu;w
         //sleep是个一个cancellation point, 如果在这里被cancel则相当于该packet的service没有完成
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         usleep(sleepTime);
@@ -207,14 +207,14 @@ void *ServerThread(void *arg) {
         free(packet);
         pthread_testcancel();
     }
-    printf("im server, im done\n");
+    //printf("im server, im done\n");
     return 0;
 }
 
 void CreateThreads() {
     struct timeval tmpTime;
     gettimeofday(&tmpTime, 0);
-    initTime = tmpTime.tv_sec * 1000.0 + tmpTime.tv_usec / 1000.0;
+    initTimeVal = tmpTime.tv_sec * 1000.0 + tmpTime.tv_usec / 1000.0;
     printf("%012.3fms: emulation begins\n", 0.0);
     
     //initialize Q1 & Q2
@@ -229,16 +229,16 @@ void CreateThreads() {
     //???感觉用SIG_SETMASK也可以
     pthread_sigmask(SIG_BLOCK, &set, 0);
     
-    pthread_create(&handlerThread, NULL, HandlerThread, NULL);
+    //pthread_create(&handlerThread, NULL, HandlerThread, NULL);
     pthread_create(&packetThread, NULL, PacketThread, NULL);
     pthread_create(&tokenThread, NULL, TokenThread, NULL);
     pthread_create(&serverThread, NULL, ServerThread, NULL);
     
     pthread_join(packetThread, NULL);
     pthread_join(tokenThread, NULL);
-    if (stopPacket && My402ListEmpty(Q1) && My402ListEmpty(Q2)) {
+    //if (stopPacket && My402ListEmpty(Q1) && My402ListEmpty(Q2)) {
         pthread_cancel(serverThread);
-    }
+    //}
     pthread_join(serverThread, NULL);
 
     totalTime = PrintReturnCurTime();
