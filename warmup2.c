@@ -191,7 +191,7 @@ void *ServerThread(void *arg) {
         printf("p%d begins service at S, requesting %gms of service\n", packet->packetNum, 1000.0 / packet->mu);
         //该packet要求睡的时间加上从Q2出来后待的时间
         double sleepTime = 1000000.0 / packet->mu;
-        printf("sleep time: %.3f\n", sleepTime);
+        printf("\nrequested sleep time: %g\n\n", sleepTime / 1000.0);
         //sleep是个一个cancellation point, 如果在这里被cancel则相当于该packet的service没有完成
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         usleep(sleepTime);
@@ -237,7 +237,7 @@ void CreateThreads() {
     pthread_join(packetThread, NULL);
     pthread_join(tokenThread, NULL);
     //if (stopPacket && My402ListEmpty(Q1) && My402ListEmpty(Q2)) {
-        pthread_cancel(serverThread);
+        //pthread_cancel(serverThread);
     //}
     pthread_join(serverThread, NULL);
 
