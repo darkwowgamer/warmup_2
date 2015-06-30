@@ -135,7 +135,6 @@ void *PacketThread(void *arg) {
     }
     packetCount--;
     stopPacket = 1;
-    //printf("im packet, im done\n");
     return 0;
 }
 
@@ -173,8 +172,6 @@ void *TokenThread(void *arg) {
             pthread_cond_signal(&cv);
         }
     }
-    //printf("im token, im done\n");
-    //printf("%d\n%d\n", My402ListEmpty(Q1), My402ListEmpty(Q2));
     return 0;
 }
 
@@ -191,7 +188,7 @@ void *ServerThread(void *arg) {
         printf("p%d begins service at S, requesting %gms of service\n", packet->packetNum, 1000.0 / packet->mu);
         //该packet要求睡的时间加上从Q2出来后待的时间
         double sleepTime = 1000000.0 / packet->mu;
-        printf("\nrequested sleep time: %g\n\n", sleepTime / 1000.0);
+        printf("\nrequested sleep time: %g\n\nms", sleepTime / 1000.0);
         //sleep是个一个cancellation point, 如果在这里被cancel则相当于该packet的service没有完成
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         usleep(sleepTime);
@@ -207,7 +204,6 @@ void *ServerThread(void *arg) {
         free(packet);
         pthread_testcancel();
     }
-    //printf("im server, im done\n");
     return 0;
 }
 
@@ -350,7 +346,6 @@ void PrintStat() {
         double sd = sqrt(var);
         printf("\tstandard deviation for time spent in system = %.6g\n", sd);
     }
-    //to be continued
     printf("\n");
     if (totalTokenCount == 0) {
         printf("\tN/A no packet arrived at this facility");
